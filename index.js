@@ -143,7 +143,7 @@ BroadlinkAccessory.prototype = {
         });
         var checkAgainSP = setInterval(function() {
             self.discover(b);
-        }, Math.random()*(2000 - 5000) + 2000))
+        }, Math.floor(Math.random() * 3000 + 2000))
 
     },
 
@@ -171,7 +171,7 @@ BroadlinkAccessory.prototype = {
                 });
                 var checkAgainSPset = setInterval(function() {
                     self.discover(b);
-                }, Math.random()*(1000 - 3000) + 1000))
+                }, Math.floor(Math.random() * 2000 + 1000))
             }
         } else {
             if (self.powered) {
@@ -189,7 +189,7 @@ BroadlinkAccessory.prototype = {
                 });
                 var checkAgainSPset = setInterval(function() {
                     self.discover(b);
-                }, Math.random()*(1000 - 3000) + 1000))
+                }, Math.floor(Math.random() * 2000 + 1000))
             } else {
                 return callback(null, false)
             }
@@ -230,7 +230,7 @@ BroadlinkAccessory.prototype = {
         var checkAgain = setInterval(function() {
             //self.log("Discovering Again for Status... " + self.sname);
             self.discover(b);
-        }, Math.random()*(2000 - 5000) + 2000))
+        }, Math.floor(Math.random() * 3000 + 2000))
 
 
     },
@@ -261,7 +261,7 @@ BroadlinkAccessory.prototype = {
                 var checkAgainSet = setInterval(function() {
                     //self.log("Discovering Again for Set Command... " + self.sname);
                     self.discover(b);
-                }, Math.random()*(1000 - 3000) + 1000)
+                }, Math.floor(Math.random() * 2000 + 1000))
             }
         } else {
             if (self.powered) {
@@ -281,7 +281,7 @@ BroadlinkAccessory.prototype = {
                 var checkAgainSet = setInterval(function() {
                     //self.log("Discovering Again for Set Command... " + self.sname);
                     self.discover(b);
-                }, 1000)
+                }, Math.floor(Math.random() * 2000 + 1000))
             } else {
                 return callback(null, false)
             }
