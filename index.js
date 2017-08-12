@@ -121,13 +121,14 @@ BroadlinkAccessory.prototype = {
         var self = this;
         var b = new broadlink();
         self.discover(b);
-
+        var counterSPget = 0
         b.on("deviceReady", (dev) => {
             if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
                 dev.check_power();
                 dev.on("power", (pwr) => {
                     self.log(self.name + self.sname + " power is on - " + pwr);
                     dev.exit();
+                    counterSPget = 0
                     clearInterval(checkAgainSP)
                     if (!pwr) {
                         self.powered = false;
@@ -142,7 +143,15 @@ BroadlinkAccessory.prototype = {
             }
         });
         var checkAgainSP = setInterval(function() {
-            self.discover(b);
+            if (counterSPget < 11) {
+                self.discover(b);
+            } else {
+                var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
+                self.log(err)
+                callback(err, null)
+            }
+            counterSPget ++;
+
         }, Math.floor(Math.random() * 3000 + 2000))
 
     },
@@ -162,6 +171,7 @@ BroadlinkAccessory.prototype = {
                         self.log("ON!");
                         dev.set_power(true);
                         dev.exit();
+                        counterSPset = 0;
                         clearInterval(checkAgainSPset)
                         self.powered = true;
                         return callback(null, true);
@@ -170,7 +180,14 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSPset = setInterval(function() {
-                    self.discover(b);
+                    if (counterSPset < 11) {
+                        self.discover(b);
+                    } else {
+                        var err = new Error("Coudn't set status for " + self.name + self.sname)
+                        self.log(err)
+                        callback(err, null)
+                    }
+                    counterSPset ++;
                 }, Math.floor(Math.random() * 2000 + 1000))
             }
         } else {
@@ -180,6 +197,7 @@ BroadlinkAccessory.prototype = {
                         self.log("OFF!");
                         dev.set_power(false);
                         dev.exit();
+                        counterSPset = 0;
                         clearInterval(checkAgainSPset)
                         self.powered = false;
                         return callback(null, false);
@@ -188,7 +206,14 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSPset = setInterval(function() {
-                    self.discover(b);
+                    if (counterSPset < 11) {
+                        self.discover(b);
+                    } else {
+                        var err = new Error("Coudn't set status for " + self.name + self.sname)
+                        self.log(err)
+                        callback(err, null)
+                    }
+                    counterSPset ++;
                 }, Math.floor(Math.random() * 2000 + 1000))
             } else {
                 return callback(null, false)
@@ -200,6 +225,7 @@ BroadlinkAccessory.prototype = {
         var self = this;
         var b = new broadlink();
         var s_index = self.sname[1];
+        var counterMPget = 0;
         self.log("checking status for " + self.name);
         self.discover(b);
         b.on("deviceReady", (dev) => {
@@ -211,7 +237,7 @@ BroadlinkAccessory.prototype = {
                     //self.log("Status is ready for " + self.name);
                     self.log(self.name + " power is on - " + status_array[s_index - 1]);
                     dev.exit();
-                    //self.log("MP1 Exited for " + self.sname);
+                    counterMPget = 0;
                     clearInterval(checkAgain);
                     if (!status_array[s_index - 1]) {
                         self.powered = false;
@@ -228,8 +254,14 @@ BroadlinkAccessory.prototype = {
             }
         });
         var checkAgain = setInterval(function() {
-            //self.log("Discovering Again for Status... " + self.sname);
-            self.discover(b);
+            if (counterMPget < 11) {
+                self.discover(b);
+            } else {
+                var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
+                self.log(err)
+                callback(err, null)
+            }
+            counterMPget ++;
         }, Math.floor(Math.random() * 3000 + 2000))
 
 
@@ -239,7 +271,7 @@ BroadlinkAccessory.prototype = {
         var self = this;
         var s_index = self.sname[1];
         var b = new broadlink();
-
+        var counterMPset = 0;
         self.log("set " + self.sname + " state to " + state);
         if (state) {
             if (self.powered) {
@@ -251,6 +283,7 @@ BroadlinkAccessory.prototype = {
                         self.log(self.sname + " is ON!");
                         dev.set_power(s_index, true);
                         dev.exit();
+                        counterMPset = 0;
                         clearInterval(checkAgainSet);
                         self.powered = true;
                         return callback(null, true);
@@ -259,8 +292,14 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSet = setInterval(function() {
-                    //self.log("Discovering Again for Set Command... " + self.sname);
-                    self.discover(b);
+                    if (counterMPset < 11) {
+                        self.discover(b);
+                    } else {
+                        var err = new Error("Coudn't set status for " + self.name + self.sname)
+                        self.log(err)
+                        callback(err, null)
+                    }
+                    counterMPset ++;
                 }, Math.floor(Math.random() * 2000 + 1000))
             }
         } else {
@@ -271,6 +310,7 @@ BroadlinkAccessory.prototype = {
                         self.log(self.sname + " is OFF!");
                         dev.set_power(s_index, false);
                         dev.exit();
+                        counterMPset = 0;
                         clearInterval(checkAgainSet);
                         self.powered = false;
                         return callback(null, false);
@@ -279,8 +319,14 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSet = setInterval(function() {
-                    //self.log("Discovering Again for Set Command... " + self.sname);
-                    self.discover(b);
+                    if (counterMPset < 11) {
+                        self.discover(b);
+                    } else {
+                        var err = new Error("Coudn't set status for " + self.name + self.sname)
+                        self.log(err)
+                        callback(err, null)
+                    }
+                    counterMPset ++;
                 }, Math.floor(Math.random() * 2000 + 1000))
             } else {
                 return callback(null, false)
