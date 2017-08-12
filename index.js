@@ -143,12 +143,12 @@ BroadlinkAccessory.prototype = {
             }
         });
         var checkAgainSP = setInterval(function() {
-            if (counterSPget < 11) {
+            if (counterSPget < 8) {
                 self.discover(b);
             } else {
                 clearInterval(checkAgainSP)
                 var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
-                self.log(err)
+                self.log("Coudn't set status for " + self.name + self.sname)
                 callback(err, null)
             }
             counterSPget ++;
@@ -181,12 +181,12 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSPset = setInterval(function() {
-                    if (counterSPset < 11) {
+                    if (counterSPset < 8) {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSPset)
                         var err = new Error("Coudn't set status for " + self.name + self.sname)
-                        self.log(err)
+                        self.log("Coudn't set status for " + self.name + self.sname)
                         callback(err, null)
                     }
                     counterSPset ++;
@@ -208,12 +208,12 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSPset = setInterval(function() {
-                    if (counterSPset < 11) {
+                    if (counterSPset < 8) {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSPset)
                         var err = new Error("Coudn't set status for " + self.name + self.sname)
-                        self.log(err)
+                        self.log("Coudn't set status for " + self.name + self.sname)
                         callback(err, null)
                     }
                     counterSPset ++;
@@ -257,12 +257,12 @@ BroadlinkAccessory.prototype = {
             }
         });
         var checkAgain = setInterval(function() {
-            if (counterMPget < 11) {
+            if (counterMPget < 8) {
                 self.discover(b);
             } else {
                 clearInterval(checkAgain);
                 var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
-                self.log(err)
+                self.log("Coudn't set status for " + self.name + self.sname)
                 callback(err, null)
             }
             counterMPget ++;
@@ -296,12 +296,12 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSet = setInterval(function() {
-                    if (counterMPset < 11) {
+                    if (counterMPset < 8) {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSet);
                         var err = new Error("Coudn't set status for " + self.name + self.sname)
-                        self.log(err)
+                        self.log("Coudn't set status for " + self.name + self.sname)
                         callback(err, null)
                     }
                     counterMPset ++;
@@ -324,12 +324,12 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSet = setInterval(function() {
-                    if (counterMPset < 11) {
+                    if (counterMPset < 8) {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSet);
                         var err = new Error("Coudn't set status for " + self.name + self.sname)
-                        self.log(err)
+                        self.log("Coudn't set status for " + self.name + self.sname)
                         callback(err, null)
                     }
                     counterMPset ++;
