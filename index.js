@@ -64,7 +64,7 @@ function BroadlinkAccessory(log, config) {
             }
             for (var i = 0; i < values.length; ++i) {
                 var tmpByte = parseInt(values[i], 16);
-                mb.writeUInt8(tmpByte, i);
+                mb.writeUInt5(tmpByte, i);
             }
         } else {
             //this.log("MAC address emtpy, using IP: " + this.ip);
@@ -143,12 +143,12 @@ BroadlinkAccessory.prototype = {
             }
         });
         var checkAgainSP = setInterval(function() {
-            if (counterSPget < 8) {
+            if (counterSPget < 5) {
                 self.discover(b);
             } else {
                 clearInterval(checkAgainSP)
                 var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
-                self.log("Coudn't set status for " + self.name + self.sname)
+                self.log("Coudn't get status from " + self.name + self.sname)
                 callback(err, null)
             }
             counterSPget ++;
@@ -181,7 +181,7 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSPset = setInterval(function() {
-                    if (counterSPset < 8) {
+                    if (counterSPset < 5) {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSPset)
@@ -208,7 +208,7 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSPset = setInterval(function() {
-                    if (counterSPset < 8) {
+                    if (counterSPset < 5) {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSPset)
@@ -257,12 +257,12 @@ BroadlinkAccessory.prototype = {
             }
         });
         var checkAgain = setInterval(function() {
-            if (counterMPget < 8) {
+            if (counterMPget < 5) {
                 self.discover(b);
             } else {
                 clearInterval(checkAgain);
                 var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
-                self.log("Coudn't set status for " + self.name + self.sname)
+                self.log("Coudn't get status from " + self.name + self.sname)
                 callback(err, null)
             }
             counterMPget ++;
@@ -296,7 +296,7 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSet = setInterval(function() {
-                    if (counterMPset < 8) {
+                    if (counterMPset < 5) {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSet);
@@ -324,7 +324,7 @@ BroadlinkAccessory.prototype = {
                     }
                 });
                 var checkAgainSet = setInterval(function() {
-                    if (counterMPset < 8) {
+                    if (counterMPset < 5) {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSet);
