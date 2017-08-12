@@ -146,6 +146,7 @@ BroadlinkAccessory.prototype = {
             if (counterSPget < 11) {
                 self.discover(b);
             } else {
+                clearInterval(checkAgainSP)
                 var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
                 self.log(err)
                 callback(err, null)
@@ -183,6 +184,7 @@ BroadlinkAccessory.prototype = {
                     if (counterSPset < 11) {
                         self.discover(b);
                     } else {
+                        clearInterval(checkAgainSPset)
                         var err = new Error("Coudn't set status for " + self.name + self.sname)
                         self.log(err)
                         callback(err, null)
@@ -209,6 +211,7 @@ BroadlinkAccessory.prototype = {
                     if (counterSPset < 11) {
                         self.discover(b);
                     } else {
+                        clearInterval(checkAgainSPset)
                         var err = new Error("Coudn't set status for " + self.name + self.sname)
                         self.log(err)
                         callback(err, null)
@@ -257,6 +260,7 @@ BroadlinkAccessory.prototype = {
             if (counterMPget < 11) {
                 self.discover(b);
             } else {
+                clearInterval(checkAgain);
                 var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
                 self.log(err)
                 callback(err, null)
@@ -295,6 +299,7 @@ BroadlinkAccessory.prototype = {
                     if (counterMPset < 11) {
                         self.discover(b);
                     } else {
+                        clearInterval(checkAgainSet);
                         var err = new Error("Coudn't set status for " + self.name + self.sname)
                         self.log(err)
                         callback(err, null)
@@ -322,6 +327,7 @@ BroadlinkAccessory.prototype = {
                     if (counterMPset < 11) {
                         self.discover(b);
                     } else {
+                        clearInterval(checkAgainSet);
                         var err = new Error("Coudn't set status for " + self.name + self.sname)
                         self.log(err)
                         callback(err, null)
