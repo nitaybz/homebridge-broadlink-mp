@@ -124,14 +124,27 @@ BroadlinkAccessory.prototype = {
         var counterSPget = 0
         b.on("deviceReady", (dev) => {
             if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                
                 dev.check_power();
+                clearInterval(checkAgainSP)
+                counterSPget = 0
                 self.log("check power (" + counterSPget + ") " + self.name + self.sname)
+                var checkPowerAgainSP = setInterval(function() {
+                    // if (counterSPget < 5) {
+                        self.log("Trying to check power (" + counterSPget + ") " + self.name + self.sname)
+                        dev.check_power();
+                    // } else {
+                    //     clearInterval(checkAgainSP)
+                    //     var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
+                    //     self.log("Coudn't get status from " + self.name + self.sname)
+                    //     callback(err, null)
+                    // }
+                    // counterSPget ++;
+
+                }, Math.floor(Math.random() * 3000 + 2000))
                 dev.on("power", (pwr) => {
+                    clearInterval(checkPowerAgainSP)
                     self.log(self.name + self.sname + " power is on - " + pwr);
                     dev.exit();
-                    counterSPget = 0
-                    clearInterval(checkAgainSP)
                     if (!pwr) {
                         self.powered = false;
                         return callback(null, false);
