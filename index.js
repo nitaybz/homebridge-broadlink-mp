@@ -122,12 +122,13 @@ BroadlinkAccessory.prototype = {
         var b = new broadlink();
         self.discover(b);
         var counterSPget = 0
+        self.log("Checking status for " + self.name + "...")
         b.on("deviceReady", (dev) => {
             if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
                 dev.check_power();
                 clearInterval(checkAgainSP)
                 counterSPget = 0
-                self.log("Checking status for " + self.name + "...")
+                //self.log("Checking status for " + self.name + "...")
                 var checkPowerAgainSP = setInterval(function() {
                     //self.log("Trying to check power (" + counterSPget + ") " + self.name)
                     dev.check_power();
