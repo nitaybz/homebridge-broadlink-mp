@@ -124,7 +124,9 @@ BroadlinkAccessory.prototype = {
         var counterSPget = 0
         b.on("deviceReady", (dev) => {
             if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
+                
                 dev.check_power();
+                self.log("check power (" + counterSPget + ") " + self.name + self.sname)
                 dev.on("power", (pwr) => {
                     self.log(self.name + self.sname + " power is on - " + pwr);
                     dev.exit();
@@ -144,6 +146,7 @@ BroadlinkAccessory.prototype = {
         });
         var checkAgainSP = setInterval(function() {
             if (counterSPget < 5) {
+                self.log("Trying to get status (" + counterSPget + ") " + self.name + self.sname)
                 self.discover(b);
             } else {
                 clearInterval(checkAgainSP)
