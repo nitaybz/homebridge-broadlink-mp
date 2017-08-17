@@ -132,7 +132,7 @@ BroadlinkAccessory.prototype = {
                 var checkPowerAgainSP = setInterval(function() {
                     //self.log("Trying to check power (" + counterSPget + ") " + self.name)
                     dev.check_power();
-                }, Math.floor(Math.random() * 2000 + 4000))
+                }, Math.floor(Math.random() * 1000 + 1000))
                 dev.on("power", (pwr) => {
                     clearInterval(checkPowerAgainSP);
                     self.log(self.name  + " power is " + (pwr == true ? "ON" : "OFF"));
@@ -161,7 +161,7 @@ BroadlinkAccessory.prototype = {
             }
             counterSPget ++;
 
-        }, Math.floor(Math.random() * 3000 + 2000))
+        }, Math.floor(Math.random() * 1000 + 1000)
 
     },
 
@@ -249,7 +249,7 @@ BroadlinkAccessory.prototype = {
                 var checkPowerAgainMP = setInterval(function() {
                     //self.log("Trying to check power (" + counterSPget + ") " + self.name)
                     dev.check_power();
-                }, Math.floor(Math.random() * 2000 + 4000))
+                }, Math.floor(Math.random() * 1000 + 1000))
                 dev.on("mp_power", (status_array) => {
                     clearInterval(checkPowerAgainMP);
                     //self.log("Status is ready for " + self.name);
@@ -279,7 +279,7 @@ BroadlinkAccessory.prototype = {
                 callback(err, null)
             }
             counterMPget ++;
-        }, Math.floor(Math.random() * 3000 + 2000))
+        }, Math.floor(Math.random() * 1000 + 1000))
 
 
     },
