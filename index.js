@@ -169,7 +169,7 @@ BroadlinkAccessory.prototype = {
         var self = this;
         var b = new broadlink();
         self.discover(b);
-
+        var counterSPset = 0
         self.log("Set " + self.name + " state: " + state);
         if (state) {
             if (self.powered) {
