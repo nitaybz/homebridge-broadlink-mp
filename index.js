@@ -129,7 +129,7 @@ BroadlinkAccessory.prototype = {
                 counterSPget = 0
                 self.log("Checking status for " + self.name + "...")
                 var checkPowerAgainSP = setInterval(function() {
-                    //self.log("Trying to check power (" + counterSPget + ") " + self.name + self.sname)
+                    //self.log("Trying to check power (" + counterSPget + ") " + self.name)
                     dev.check_power();
                 }, Math.floor(Math.random() * 2000 + 4000))
                 dev.on("power", (pwr) => {
@@ -150,7 +150,7 @@ BroadlinkAccessory.prototype = {
         });
         var checkAgainSP = setInterval(function() {
             if (counterSPget < 5) {
-                //self.log("Trying to get status (" + counterSPget + ") " + self.name + self.sname)
+                //self.log("Trying to get status (" + counterSPget + ") " + self.name)
                 self.discover(b);
             } else {
                 clearInterval(checkAgainSP)
@@ -193,7 +193,7 @@ BroadlinkAccessory.prototype = {
                     } else {
                         clearInterval(checkAgainSPset)
                         var err = new Error("Coudn't set status for " + self.name)
-                        self.log("Coudn't set status for " + self.name + self.sname)
+                        self.log("Coudn't set status for " + self.name)
                         callback(err, null)
                     }
                     counterSPset ++;
@@ -219,8 +219,8 @@ BroadlinkAccessory.prototype = {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSPset)
-                        var err = new Error("Coudn't set status for " + self.name + self.sname)
-                        self.log("Coudn't set status for " + self.name + self.sname)
+                        var err = new Error("Coudn't set status for " + self.name)
+                        self.log("Coudn't set status for " + self.name)
                         callback(err, null)
                     }
                     counterSPset ++;
@@ -236,7 +236,7 @@ BroadlinkAccessory.prototype = {
         var b = new broadlink();
         var s_index = self.sname[1];
         var counterMPget = 0;
-        self.log("checking status for " + self.name + " - " + self.sname + "...")
+        self.log("checking status for " + self.name + "...")
         self.discover(b);
         b.on("deviceReady", (dev) => {
             //self.log("detected device type:" + dev.type + " @ " + dev.host.address);
@@ -247,7 +247,7 @@ BroadlinkAccessory.prototype = {
                 self.log("Checking status for " + self.name + "...")
                 dev.check_power();
                 var checkPowerAgainMP = setInterval(function() {
-                    //self.log("Trying to check power (" + counterSPget + ") " + self.name + self.sname)
+                    //self.log("Trying to check power (" + counterSPget + ") " + self.name)
                     dev.check_power();
                 }, Math.floor(Math.random() * 2000 + 4000))
                 dev.on("mp_power", (status_array) => {
@@ -274,8 +274,8 @@ BroadlinkAccessory.prototype = {
                 self.discover(b);
             } else {
                 clearInterval(checkAgainMP);
-                var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
-                self.log("Coudn't get status from " + self.name + self.sname)
+                var err = new Error("Coudn't retrieve status from " + self.name)
+                self.log("Coudn't get status from " + self.name)
                 callback(err, null)
             }
             counterMPget ++;
@@ -313,8 +313,8 @@ BroadlinkAccessory.prototype = {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSet);
-                        var err = new Error("Coudn't set status for " + self.name + self.sname)
-                        self.log("Coudn't set status for " + self.name + self.sname)
+                        var err = new Error("Coudn't set status for " + self.name)
+                        self.log("Coudn't set status for " + self.name)
                         callback(err, null)
                     }
                     counterMPset ++;
@@ -341,8 +341,8 @@ BroadlinkAccessory.prototype = {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSet);
-                        var err = new Error("Coudn't set status for " + self.name + self.sname)
-                        self.log("Coudn't set status for " + self.name + self.sname)
+                        var err = new Error("Coudn't set status for " + self.name)
+                        self.log("Coudn't set status for " + self.name)
                         callback(err, null)
                     }
                     counterMPset ++;
