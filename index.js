@@ -245,7 +245,6 @@ BroadlinkAccessory.prototype = {
                 //self.log("deviceReady for " + self.name);
                 clearInterval(checkAgainMP)
                 counterMPget = 0
-                self.log("Checking status for " + self.name + "...")
                 dev.check_power();
                 var checkPowerAgainMP = setInterval(function() {
                     //self.log("Trying to check power (" + counterSPget + ") " + self.name)
