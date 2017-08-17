@@ -45,8 +45,8 @@ function BroadlinkAccessory(log, config) {
     this.log = log;
     this.config = config;
     this.sname = config.sname || "";
-    this.name = config.name + this.sname;
     this.type = config.type || "MP";
+    this.name = (this.type == "MP" ? (config.name + " " + this.sname) : config.name);
     this.ip = config.ip;
     this.mac = config.mac;
     this.powered = false;
@@ -134,7 +134,7 @@ BroadlinkAccessory.prototype = {
                 }, Math.floor(Math.random() * 2000 + 4000))
                 dev.on("power", (pwr) => {
                     clearInterval(checkPowerAgainSP);
-                    self.log(self.name  + " power is ON - " + pwr);
+                    self.log(self.name  + " power is " + (pwr == true ? "ON" : "OFF"));
                     dev.exit();
                     if (!pwr) {
                         self.powered = false;
@@ -253,7 +253,7 @@ BroadlinkAccessory.prototype = {
                 dev.on("mp_power", (status_array) => {
                     clearInterval(checkPowerAgainMP);
                     //self.log("Status is ready for " + self.name);
-                    self.log(self.name + " power is on - " + status_array[s_index - 1]);
+                    self.log(self.name + " power is " + (status_array[s_index - 1] == true ? "ON" : "OFF"));
                     dev.exit();
                     if (!status_array[s_index - 1]) {
                         self.powered = false;
