@@ -127,23 +127,14 @@ BroadlinkAccessory.prototype = {
                 dev.check_power();
                 clearInterval(checkAgainSP)
                 counterSPget = 0
-                self.log("check power (" + counterSPget + ") " + self.name + self.sname)
+                self.log("Checking status for " + self.name + "...")
                 var checkPowerAgainSP = setInterval(function() {
-                    // if (counterSPget < 5) {
-                        self.log("Trying to check power (" + counterSPget + ") " + self.name + self.sname)
-                        dev.check_power();
-                    // } else {
-                    //     clearInterval(checkAgainSP)
-                    //     var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
-                    //     self.log("Coudn't get status from " + self.name + self.sname)
-                    //     callback(err, null)
-                    // }
-                    // counterSPget ++;
-
-                }, Math.floor(Math.random() * 3000 + 2000))
+                    //self.log("Trying to check power (" + counterSPget + ") " + self.name + self.sname)
+                    dev.check_power();
+                }, Math.floor(Math.random() * 2000 + 4000))
                 dev.on("power", (pwr) => {
-                    clearInterval(checkPowerAgainSP)
-                    self.log(self.name + self.sname + " power is on - " + pwr);
+                    clearInterval(checkPowerAgainSP);
+                    self.log(self.name  + " power is ON - " + pwr);
                     dev.exit();
                     if (!pwr) {
                         self.powered = false;
@@ -159,12 +150,12 @@ BroadlinkAccessory.prototype = {
         });
         var checkAgainSP = setInterval(function() {
             if (counterSPget < 5) {
-                self.log("Trying to get status (" + counterSPget + ") " + self.name + self.sname)
+                //self.log("Trying to get status (" + counterSPget + ") " + self.name + self.sname)
                 self.discover(b);
             } else {
                 clearInterval(checkAgainSP)
-                var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
-                self.log("Coudn't get status from " + self.name + self.sname)
+                var err = new Error("Coudn't retrieve status from " + self.name)
+                self.log("Coudn't get status from " + self.name)
                 callback(err, null)
             }
             counterSPget ++;
@@ -178,18 +169,18 @@ BroadlinkAccessory.prototype = {
         var b = new broadlink();
         self.discover(b);
 
-        self.log("set SP state: " + state);
+        self.log("Set " + self.name + " state: " + state);
         if (state) {
             if (self.powered) {
                 return callback(null, true)
             } else {
                 b.on("deviceReady", (dev) => {
                     if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                        self.log("ON!");
-                        dev.set_power(true);
-                        dev.exit();
+                        self.log(self.name + "is ON!");
                         counterSPset = 0;
                         clearInterval(checkAgainSPset)
+                        dev.set_power(true);
+                        dev.exit();
                         self.powered = true;
                         return callback(null, true);
                     } else {
@@ -201,7 +192,7 @@ BroadlinkAccessory.prototype = {
                         self.discover(b);
                     } else {
                         clearInterval(checkAgainSPset)
-                        var err = new Error("Coudn't set status for " + self.name + self.sname)
+                        var err = new Error("Coudn't set status for " + self.name)
                         self.log("Coudn't set status for " + self.name + self.sname)
                         callback(err, null)
                     }
@@ -212,11 +203,11 @@ BroadlinkAccessory.prototype = {
             if (self.powered) {
                 b.on("deviceReady", (dev) => {
                     if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                        self.log("OFF!");
-                        dev.set_power(false);
-                        dev.exit();
+                        self.log(self.name + "is OFF!");
                         counterSPset = 0;
                         clearInterval(checkAgainSPset)
+                        dev.set_power(false);
+                        dev.exit();
                         self.powered = false;
                         return callback(null, false);
                     } else {
@@ -245,19 +236,25 @@ BroadlinkAccessory.prototype = {
         var b = new broadlink();
         var s_index = self.sname[1];
         var counterMPget = 0;
-        self.log("checking status for " + self.name);
+        self.log("checking status for " + self.name + " - " + self.sname + "...")
         self.discover(b);
         b.on("deviceReady", (dev) => {
             //self.log("detected device type:" + dev.type + " @ " + dev.host.address);
             if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
                 //self.log("deviceReady for " + self.name);
+                clearInterval(checkAgainMP)
+                counterMPget = 0
+                self.log("Checking status for " + self.name + "...")
                 dev.check_power();
+                var checkPowerAgainMP = setInterval(function() {
+                    //self.log("Trying to check power (" + counterSPget + ") " + self.name + self.sname)
+                    dev.check_power();
+                }, Math.floor(Math.random() * 2000 + 4000))
                 dev.on("mp_power", (status_array) => {
+                    clearInterval(checkPowerAgainMP);
                     //self.log("Status is ready for " + self.name);
                     self.log(self.name + " power is on - " + status_array[s_index - 1]);
                     dev.exit();
-                    counterMPget = 0;
-                    clearInterval(checkAgain);
                     if (!status_array[s_index - 1]) {
                         self.powered = false;
                         return callback(null, false);
@@ -272,11 +269,11 @@ BroadlinkAccessory.prototype = {
                 //self.log("exited device type:" + dev.type + " @ " + dev.host.address);
             }
         });
-        var checkAgain = setInterval(function() {
+        var checkAgainMP = setInterval(function() {
             if (counterMPget < 5) {
                 self.discover(b);
             } else {
-                clearInterval(checkAgain);
+                clearInterval(checkAgainMP);
                 var err = new Error("Coudn't retrieve status from " + self.name + self.sname)
                 self.log("Coudn't get status from " + self.name + self.sname)
                 callback(err, null)
@@ -292,7 +289,7 @@ BroadlinkAccessory.prototype = {
         var s_index = self.sname[1];
         var b = new broadlink();
         var counterMPset = 0;
-        self.log("set " + self.sname + " state to " + state);
+        self.log("Set " + self.name + " state: " + state);
         if (state) {
             if (self.powered) {
                 return callback(null, true);
@@ -300,7 +297,7 @@ BroadlinkAccessory.prototype = {
                 self.discover(b);
                 b.on("deviceReady", (dev) => {
                     if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                        self.log(self.sname + " is ON!");
+                        self.log(self.name + " is ON!");
                         dev.set_power(s_index, true);
                         dev.exit();
                         counterMPset = 0;
@@ -328,7 +325,7 @@ BroadlinkAccessory.prototype = {
                 self.discover(b);
                 b.on("deviceReady", (dev) => {
                     if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                        self.log(self.sname + " is OFF!");
+                        self.log(self.name + " is OFF!");
                         dev.set_power(s_index, false);
                         dev.exit();
                         counterMPset = 0;
