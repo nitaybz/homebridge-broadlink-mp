@@ -1,5 +1,7 @@
 var Accessory, Service, Characteristic;
-var broadlink = require('broadlinkjs-sm');
+var broadlink = require('./lib/broadlinkjs');
+
+const getDevice = require('./lib/getDevice');
 
 module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
@@ -29,7 +31,7 @@ broadlinkPlatform.prototype = {
                     foundAccessories[i].sname = "s" + a;
                     var accessory = new BroadlinkAccessory(this.log, foundAccessories[i]);
                     myAccessories.push(accessory);
-                    this.log('Created ' + accessory.name + ' ' + accessory.sname + ' Accessory');
+                    this.log('Created ' + accessory.name + ' Accessory');
                 }
             } else {
                 var accessory = new BroadlinkAccessory(this.log, foundAccessories[i]);
@@ -51,26 +53,10 @@ function BroadlinkAccessory(log, config) {
     this.mac = config.mac;
     this.powered = false;
     this.local_ip_address = config.local_ip_address;
-
+    this.mpName = config.name
     if (!this.ip && !this.mac) throw new Error("You must provide a config value for 'ip' or 'mac'.");
 
-    // MAC string to MAC buffer
-    this.mac_buff = function(mac) {
-        var mb = new Buffer(6);
-        if (mac) {
-            var values = mac.split(':');
-            if (!values || values.length !== 6) {
-                throw new Error('Invalid MAC [' + mac + ']; should follow pattern ##:##:##:##:##:##');
-            }
-            for (var i = 0; i < values.length; ++i) {
-                var tmpByte = parseInt(values[i], 16);
-                mb.writeUInt5(tmpByte, i);
-            }
-        } else {
-            //this.log("MAC address emtpy, using IP: " + this.ip);
-        }
-        return mb;
-    }
+    
 }
 
 BroadlinkAccessory.prototype = {
@@ -95,7 +81,7 @@ BroadlinkAccessory.prototype = {
             services.push(switchService, informationService);
 
         } else if (type == 'MP') {
-            var switchService = new Service.Switch(this.sname);
+            var switchService = new Service.Switch(this.name);
             switchService
                 .getCharacteristic(Characteristic.On)
                 .on('get', this.getMPstate.bind(this))
@@ -112,244 +98,111 @@ BroadlinkAccessory.prototype = {
         return services;
     },
 
-    // b: broadlink
-    discover: function(b) {
-        b.discover(this.local_ip_address);
-    },
-
     getSPState: function(callback) {
+        var host = this.ip || this.mac
+        var log = this.log
+        this.device = getDevice({ host, log })
         var self = this;
-        var b = new broadlink();
-        self.discover(b);
-        var counterSPget = 0
-        self.log("Checking status for " + self.name + "...")
-        b.on("deviceReady", (dev) => {
-            if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                dev.check_power();
-                clearInterval(checkAgainSP)
-                counterSPget = 0
-                //self.log("Checking status for " + self.name + "...")
-                var checkPowerAgainSP = setInterval(function() {
-                    //self.log("Trying to check power (" + counterSPget + ") " + self.name)
-                    dev.check_power();
-                }, Math.floor(Math.random() * 1500 + 1500))
-                dev.on("power", (pwr) => {
-                    clearInterval(checkPowerAgainSP);
-                    self.log(self.name  + " power is " + (pwr == true ? "ON" : "OFF"));
-                    dev.exit();
-                    if (!pwr) {
-                        self.powered = false;
-                        return callback(null, false);
-                    } else {
-                        self.powered = true;
-                        return callback(null, true);
-                    }
-                });
-            } else {
-                dev.exit();
-            }
-        });
-        var checkAgainSP = setInterval(function() {
-            if (counterSPget < 5) {
-                //self.log("Trying to get status (" + counterSPget + ") " + self.name)
-                self.discover(b);
-            } else {
-                clearInterval(checkAgainSP)
-                var err = new Error("Coudn't retrieve status from " + self.name)
-                self.log("Coudn't get status from " + self.name)
-                callback(err, null)
-            }
-            counterSPget ++;
-
-        }, Math.floor(Math.random() * 1500 + 1500))
-
+        var counter = 0;
+        if (this.device == undefined && counter < 10){
+            counter++
+            this.log("Searching for " + this.name  + " device... Please Wait!")
+            setTimeout(function(){
+                self.getSPState(callback)
+            }, 3000)
+        } else if (this.device == undefined && counter >= 10){
+            var err = new Error("Could not find " + self.name + " at " + host + " !")
+            self.log(err)
+            callback(err, null)
+        } else {
+            this.device.check_power(function(pwr){
+                self.log(self.name  + " power is " + (pwr == true ? "ON" : "OFF"));
+                if (!pwr) {
+                    callback(null, false);
+                } else {
+                    callback(null, true);
+                }
+            });
+        }
     },
+
 
     setSPState: function(state, callback) {
-        var self = this;
-        var b = new broadlink();
-        self.discover(b);
-        var counterSPset = 0
-        self.log("Set " + self.name + " state: " + state);
-        if (state) {
-            if (self.powered) {
-                return callback(null, true)
-            } else {
-                b.on("deviceReady", (dev) => {
-                    if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                        self.log(self.name + "is ON!");
-                        counterSPset = 0;
-                        clearInterval(checkAgainSPset)
-                        dev.set_power(true);
-                        dev.exit();
-                        self.powered = true;
-                        return callback(null, true);
-                    } else {
-                        dev.exit();
-                    }
-                });
-                var checkAgainSPset = setInterval(function() {
-                    if (counterSPset < 5) {
-                        self.discover(b);
-                    } else {
-                        clearInterval(checkAgainSPset)
-                        var err = new Error("Coudn't set status for " + self.name)
-                        self.log("Coudn't set status for " + self.name)
-                        callback(err, null)
-                    }
-                    counterSPset ++;
-                }, Math.floor(Math.random() * 2000 + 1000))
-            }
+        var host = this.ip || this.mac
+        var log = this.log
+        this.device = getDevice({ host, log })
+        var counter = 0;
+        if (this.device == undefined && counter < 10){
+            counter++
+            this.log("Searching for " + this.name  + " device... Please Wait!")
+            setTimeout(function(){
+                self.setSPState(state, callback)
+            }, 3000)
+        } else if (this.device == undefined && counter >= 10){
+            var err = new Error("Could not find " + self.name + " at " + host + " !")
+            self.log(err)
+            callback(err, null)
         } else {
-            if (self.powered) {
-                b.on("deviceReady", (dev) => {
-                    if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                        self.log(self.name + "is OFF!");
-                        counterSPset = 0;
-                        clearInterval(checkAgainSPset)
-                        dev.set_power(false);
-                        dev.exit();
-                        self.powered = false;
-                        return callback(null, false);
-                    } else {
-                        dev.exit();
-                    }
-                });
-                var checkAgainSPset = setInterval(function() {
-                    if (counterSPset < 5) {
-                        self.discover(b);
-                    } else {
-                        clearInterval(checkAgainSPset)
-                        var err = new Error("Coudn't set status for " + self.name)
-                        self.log("Coudn't set status for " + self.name)
-                        callback(err, null)
-                    }
-                    counterSPset ++;
-                }, Math.floor(Math.random() * 2000 + 1000))
-            } else {
-                return callback(null, false)
-            }
+            this.log("Set " + this.name + " state: " + state);
+            this.device.set_power(state);
+            callback(null, state);
         }
     },
 
     getMPstate: function(callback) {
+        var host = this.ip || this.mac
+        var log = this.log
+        this.device = getDevice({ host, log })
         var self = this;
-        var b = new broadlink();
-        var s_index = self.sname[1];
-        var counterMPget = 0;
-        self.log("checking status for " + self.name + "...")
-        self.discover(b);
-        b.on("deviceReady", (dev) => {
-            //self.log("detected device type:" + dev.type + " @ " + dev.host.address);
-            if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                //self.log("deviceReady for " + self.name);
-                clearInterval(checkAgainMP)
-                counterMPget = 0
-                dev.check_power();
-                var checkPowerAgainMP = setInterval(function() {
-                    //self.log("Trying to check power (" + counterSPget + ") " + self.name)
-                    dev.check_power();
-                }, Math.floor(Math.random() * 1500 + 1500))
-                dev.on("mp_power", (status_array) => {
-                    clearInterval(checkPowerAgainMP);
-                    //self.log("Status is ready for " + self.name);
-                    self.log(self.name + " power is " + (status_array[s_index - 1] == true ? "ON" : "OFF"));
-                    dev.exit();
-                    if (!status_array[s_index - 1]) {
-                        self.powered = false;
-                        return callback(null, false);
-                    } else {
-                        self.powered = true;
-                        return callback(null, true);
-                    }
-                });
-
-            } else {
-                dev.exit();
-                //self.log("exited device type:" + dev.type + " @ " + dev.host.address);
+        var s_index = this.sname[1];
+        var counter = 0;
+        if (this.device == undefined && counter < 10){
+            counter++
+            if (s_index == 1){
+                this.log("Searching for " + this.mpName + " device... Please Wait!")
             }
-        });
-        var checkAgainMP = setInterval(function() {
-            if (counterMPget < 5) {
-                self.discover(b);
-            } else {
-                clearInterval(checkAgainMP);
-                var err = new Error("Coudn't retrieve status from " + self.name)
-                self.log("Coudn't get status from " + self.name)
-                callback(err, null)
-            }
-            counterMPget ++;
-        }, Math.floor(Math.random() * 1500 + 1500))
-
-
+            setTimeout(function(){
+                self.getMPstate(callback)
+            }, 3000)
+        } else if (this.device == undefined && counter >= 10){
+            var err = new Error("Could not find " + self.name + " at " + host + " !")
+            self.log(err)
+            callback(err, null)
+        } else {
+            this.device.check_power(function(status_array){
+                self.log(self.name + " power is " + (status_array[s_index - 1] == true ? "ON" : "OFF"));
+                if (!status_array[s_index - 1]) {
+                    callback(null, false);
+                } else {
+                    callback(null, true);
+                }
+            });
+        }
     },
 
     setMPstate: function(state, callback) {
-        var self = this;
-        var s_index = self.sname[1];
-        var b = new broadlink();
-        var counterMPset = 0;
-        self.log("Set " + self.name + " state: " + state);
-        if (state) {
-            if (self.powered) {
-                return callback(null, true);
-            } else {
-                self.discover(b);
-                b.on("deviceReady", (dev) => {
-                    if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                        self.log(self.name + " is ON!");
-                        dev.set_power(s_index, true);
-                        dev.exit();
-                        counterMPset = 0;
-                        clearInterval(checkAgainSet);
-                        self.powered = true;
-                        return callback(null, true);
-                    } else {
-                        dev.exit();
-                    }
-                });
-                var checkAgainSet = setInterval(function() {
-                    if (counterMPset < 5) {
-                        self.discover(b);
-                    } else {
-                        clearInterval(checkAgainSet);
-                        var err = new Error("Coudn't set status for " + self.name)
-                        self.log("Coudn't set status for " + self.name)
-                        callback(err, null)
-                    }
-                    counterMPset ++;
-                }, Math.floor(Math.random() * 2000 + 1000))
+        var s_index = this.sname[1];
+        var host = this.ip || this.mac
+        var log = this.log
+        var self = this
+        this.device = getDevice({ host, log })
+        var counter = 0;
+        if (this.device == undefined && counter < 10){
+            counter++
+            if (s_index == 1){
+                this.log("Searching for " + this.mpName + " device... Please Wait!")
             }
+            setTimeout(function(){
+                self.setMPstate(state, callback)
+            }, 3000)
+        } else if (this.device == undefined && counter >= 10){
+            var err = new Error("Could not find " + self.name + " at " + host + " !")
+            self.log(err)
+            callback(err, null)
         } else {
-            if (self.powered) {
-                self.discover(b);
-                b.on("deviceReady", (dev) => {
-                    if (self.mac_buff(self.mac).equals(dev.mac) || dev.host.address == self.ip) {
-                        self.log(self.name + " is OFF!");
-                        dev.set_power(s_index, false);
-                        dev.exit();
-                        counterMPset = 0;
-                        clearInterval(checkAgainSet);
-                        self.powered = false;
-                        return callback(null, false);
-                    } else {
-                        dev.exit();
-                    }
-                });
-                var checkAgainSet = setInterval(function() {
-                    if (counterMPset < 5) {
-                        self.discover(b);
-                    } else {
-                        clearInterval(checkAgainSet);
-                        var err = new Error("Coudn't set status for " + self.name)
-                        self.log("Coudn't set status for " + self.name)
-                        callback(err, null)
-                    }
-                    counterMPset ++;
-                }, Math.floor(Math.random() * 2000 + 1000))
-            } else {
-                return callback(null, false)
-            }
+            this.log("Set " + this.name + " state: " + state);
+            this.device.set_power(s_index, state);
+            callback(null, state);
         }
     }
 }
