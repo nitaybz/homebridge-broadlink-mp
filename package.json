@@ -1,6 +1,6 @@
 {
   "name": "homebridge-broadlink-platform",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Homebridge plugin for Broadlink SP2/3 & MP1",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,7 @@
   "author": "smka",
   "license": "MIT",
   "dependencies": {
-    "broadlinkjs-sm": ">=0.1.5"
+    "@types/node": "^7.0.5"
   },
   "bugs": {
     "url": "https://github.com/smka/homebridge-broadlink-platform/issues"
