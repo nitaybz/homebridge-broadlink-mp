@@ -170,7 +170,7 @@ BroadlinkAccessory.prototype = {
             callback(err, null)
         } else {
             var gotPower = false;
-            this.device.check_power(function(status_array){
+            self.device.check_power(function(status_array){
                 gotPower = true;
                 self.log(self.name + " power is " + (status_array[s_index - 1] == true ? "ON" : "OFF"));
                 if (!status_array[s_index - 1]) callback(null, false)
@@ -181,7 +181,7 @@ BroadlinkAccessory.prototype = {
                 if (gotPower == true) clearInterval(intervalPowerCheck)
                 else if (intervalCounter < 5) {
                     counter ++;
-                    this.device.check_power(function(status_array){
+                    self.device.check_power(function(status_array){
                         gotPower = true;
                         self.log(self.name + " power is " + (status_array[s_index - 1] == true ? "ON" : "OFF"));
                         if (!status_array[s_index - 1]) callback(null, false)
