@@ -179,7 +179,7 @@ BroadlinkAccessory.prototype = {
             var intervalCounter = 0;
             var intervalPowerCheck = setInterval(function(){
                 if (gotPower == true) clearInterval(intervalPowerCheck)
-                else if (intervalCounter < 5) {
+                if (intervalCounter < 5) {
                     counter ++;
                     self.device.check_power(function(status_array){
                         gotPower = true;
