@@ -179,20 +179,23 @@ BroadlinkAccessory.prototype = {
             var intervalCounter = 0;
             var intervalPowerCheck = setInterval(function(){
                 if (gotPower == true) clearInterval(intervalPowerCheck)
-                if (intervalCounter < 5) {
-                    counter ++;
-                    self.device.check_power(function(status_array){
-                        gotPower = true;
-                        self.log(self.name + " power is " + (status_array[s_index - 1] == true ? "ON" : "OFF"));
-                        if (!status_array[s_index - 1]) callback(null, false)
-                        else callback(null, true);
-                    });
-                } else {
-                    clearInterval(intervalPowerCheck)
-                    var err = new Error("Could not get status from " + self.name)
-                    self.log(err)
-                    callback(err)
+                else {
+                    if (intervalCounter < 5) {
+                        counter ++;
+                        self.device.check_power(function(status_array){
+                            gotPower = true;
+                            self.log(self.name + " power is " + (status_array[s_index - 1] == true ? "ON" : "OFF"));
+                            if (!status_array[s_index - 1]) callback(null, false)
+                            else callback(null, true);
+                        });
+                    } else {
+                        clearInterval(intervalPowerCheck)
+                        var err = new Error("Could not get status from " + self.name)
+                        self.log(err)
+                        callback(err)
+                    }
                 }
+                
             }, 3000)
         }
     },
