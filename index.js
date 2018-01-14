@@ -115,14 +115,28 @@ BroadlinkAccessory.prototype = {
             self.log(err)
             callback(err, null)
         } else {
+            var gotPower = false;
             this.device.check_power(function(pwr){
+                gotPower = true;
                 self.log(self.name  + " power is " + (pwr == true ? "ON" : "OFF"));
-                if (!pwr) {
-                    callback(null, false);
-                } else {
-                    callback(null, true);
+                try {
+                    if (!pwr) {
+                        callback(null, false);
+                    } else {
+                        callback(null, true);
+                    }
+                } catch (e){
+                    // self.log(e)
                 }
+                
             });
+            setTimeout(() => {
+                if (!gotPower){
+                    var err = "Could not get status from " + self.name
+                    self.log(err)
+                    callback(err, null);
+                }
+            }, 5000);
         }
     },
 
@@ -176,27 +190,13 @@ BroadlinkAccessory.prototype = {
                 if (!status_array[s_index - 1]) callback(null, false)
                 else callback(null, true);
             });
-            var intervalCounter = 0;
-            var intervalPowerCheck = setInterval(function(){
-                if (gotPower == true) clearInterval(intervalPowerCheck)
-                else {
-                    if (intervalCounter < 5) {
-                        counter ++;
-                        self.device.check_power(function(status_array){
-                            gotPower = true;
-                            self.log(self.name + " power is " + (status_array[s_index - 1] == true ? "ON" : "OFF"));
-                            if (!status_array[s_index - 1]) callback(null, false)
-                            else callback(null, true);
-                        });
-                    } else {
-                        clearInterval(intervalPowerCheck)
-                        var err = new Error("Could not get status from " + self.name)
-                        self.log(err)
-                        callback(err)
-                    }
+            setTimeout(() => {
+                if (!gotPower){
+                    var err = "Could not get status from " + self.name
+                    self.log(err)
+                    callback(err, null);
                 }
-                
-            }, 3000)
+            }, 5000);
         }
     },
 
